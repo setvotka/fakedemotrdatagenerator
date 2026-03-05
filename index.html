@@ -2,158 +2,319 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Fake Data Generator PRO - Güvenlikli</title>
+<title>Fake Data Generator PRO</title>
 
 <!--
 Fake Data Generator PRO
-Copyright (c) 2026 setvotka
-
-This software generates completely random, fictional data for testing purposes.
-All generated data is fictional and does not represent real individuals.
-Unauthorized redistribution of this project without proper credit is not permitted.
+All rights copied setvotka
 -->
 
 <style>
+
 body{
-  background:#111;
-  color:#fff;
-  font-family:Arial, sans-serif;
-  text-align:center;
-  padding:20px;
+margin:0;
+background:#000;
+color:#00ff9c;
+font-family:monospace;
+overflow:hidden;
 }
-h1{margin-top:10px;}
-.kutu{
-  background:#1a1a1a;
-  padding:20px;
-  border-radius:10px;
-  display:inline-block;
-  margin-bottom:20px;
+
+canvas{
+position:fixed;
+top:0;
+left:0;
+z-index:-1;
 }
-input,button{
-  padding:10px;
-  margin:5px;
-  font-size:14px;
+
+/* loading */
+
+#loading{
+position:fixed;
+width:100%;
+height:100%;
+background:#000;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:30px;
+z-index:10;
 }
-button{
-  cursor:pointer;
-  border:none;
-  border-radius:6px;
-  background:#00ff88;
-  color:#000;
+
+/* warning */
+
+#warning{
+display:none;
+position:fixed;
+width:100%;
+height:100%;
+background:#000;
+justify-content:center;
+align-items:center;
+z-index:9;
 }
-button:disabled{
-  background:#555;
-  color:#888;
-  cursor:not-allowed;
+
+.warnbox{
+background:#111;
+padding:30px;
+border-radius:10px;
+max-width:500px;
+text-align:center;
+box-shadow:0 0 20px #00ff9c;
 }
-footer{
-  margin-top:30px;
-  color:#777;
-  font-size:13px;
+
+/* terminal */
+
+#terminal{
+display:none;
+position:fixed;
+width:100%;
+height:100%;
+background:#000;
+padding:20px;
+white-space:pre-line;
+z-index:8;
 }
+
+/* main site */
+
+#site{
+display:none;
+padding:20px;
+text-align:center;
+}
+
 table{
-  margin:auto;
-  width:90%;
-  max-width:1200px;
-  border-collapse:collapse;
-  margin-top:20px;
+margin:auto;
+border-collapse:collapse;
+width:90%;
 }
+
 th,td{
-  border:1px solid #333;
-  padding:6px;
+border:1px solid #222;
+padding:5px;
 }
-tr:hover{background:#222;}
-.box{overflow:auto;}
+
+button,input{
+padding:8px;
+margin:5px;
+border:none;
+background:#00ff9c;
+cursor:pointer;
+}
+
 </style>
 </head>
+
 <body>
+
+<canvas id="matrix"></canvas>
+
+<div id="loading">
+LOADING SYSTEM...
+</div>
+
+<div id="warning">
+
+<div class="warnbox">
+
+<h2>⚠ ÖNEMLİ UYARI</h2>
+
+<p>
+Bu sitede oluşturulan veriler tamamen sahte ve rastgele oluşturulmaktadır.
+</p>
+
+<p>
+Gerçek kişilerle benzerlik oluşursa bu tamamen tesadüftür.
+</p>
+
+<p>
+Bu verileri başka yerlerde paylaşırsanız veya kullanırsanız
+tüm sorumluluk size aittir.
+</p>
+
+<p>
+Site hiçbir sorumluluk kabul etmez.
+</p>
+
+<p><b>18 yaşından büyük olduğunuzu ve sorumluluğu kabul ettiğinizi onaylayın.</b></p>
+
+<button onclick="startTerminal()">Kabul Ediyorum</button>
+
+</div>
+
+</div>
+
+<div id="terminal"></div>
+
+<div id="site">
 
 <h1>Fake Data Generator PRO</h1>
 
-<div class="kutu">
-<p><b>Güvenlik Kodu:</b> <span id="captcha"></span></p>
-<input type="text" id="kod" placeholder="Kodu gir">
-<button id="kontrol">Doğrula</button>
-<p id="mesaj"></p>
-</div>
+<input type="number" id="count" value="50" max="10000">
 
-<div class="kutu">
-<input type="number" id="count" value="10" min="1" max="3000">
-<br>
-<button id="generate" disabled>Generate</button>
-<button onclick="downloadTXT()">TXT</button>
-<button onclick="downloadCSV()">CSV</button>
-<button onclick="downloadJSON()">JSON</button>
+<button onclick="generate()">Generate</button>
 
-<div class="box">
 <table id="table">
+
 <tr>
-<th>Name</th><th>Country</th><th>City</th><th>Address</th><th>Email</th><th>Phone</th><th>IP</th><th>GPS</th><th>Username</th>
+<th>Name</th>
+<th>Email</th>
+<th>IP</th>
+<th>Username</th>
 </tr>
+
 </table>
-</div>
-</div>
 
 <footer>
-© 2026 Fake Data Generator PRO – Created by setvotka  
-All generated data is fictional and for testing purposes only.
+
+<br><br>
+
+All rights copied setvotka
+
 </footer>
 
+</div>
+
 <script>
-// ----------------- CAPTCHA -----------------
-let captcha = Math.floor(1000 + Math.random()*9000);
-document.getElementById('captcha').innerText = captcha;
 
-document.getElementById('kontrol').onclick = function(){
-  let girilen = document.getElementById('kod').value;
-  if(girilen == captcha){
-    document.getElementById('mesaj').innerText = "✅ Doğrulama başarılı!";
-    document.getElementById('generate').disabled = false;
-  } else {
-    document.getElementById('mesaj').innerText = "❌ Güvenlik kodu yanlış!";
-    document.getElementById('generate').disabled = true;
-    captcha = Math.floor(1000 + Math.random()*9000);
-    document.getElementById('captcha').innerText = captcha;
-  }
+/* MATRIX */
+
+let canvas=document.getElementById("matrix")
+let ctx=canvas.getContext("2d")
+
+canvas.height=window.innerHeight
+canvas.width=window.innerWidth
+
+let letters="01ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+letters=letters.split("")
+
+let fontSize=14
+let columns=canvas.width/fontSize
+
+let drops=[]
+
+for(let x=0;x<columns;x++)
+drops[x]=1
+
+function draw(){
+
+ctx.fillStyle="rgba(0,0,0,0.05)"
+ctx.fillRect(0,0,canvas.width,canvas.height)
+
+ctx.fillStyle="#0f0"
+ctx.font=fontSize+"px monospace"
+
+for(let i=0;i<drops.length;i++){
+
+let text=letters[Math.floor(Math.random()*letters.length)]
+
+ctx.fillText(text,i*fontSize,drops[i]*fontSize)
+
+if(drops[i]*fontSize>canvas.height && Math.random()>0.975)
+drops[i]=0
+
+drops[i]++
+
 }
 
-// ----------------- Fake Data -----------------
-var names=["Ahmet","Mehmet","Ali","Mert","Can","Eren","Burak","Kerem","Emir","Tolga","Kaan","Arda","Ozan","Baran","Umut","Serkan","Volkan","Emre","Hakan","Tuna","Deniz","Selin","Buse","Ece","Ceren","Zeynep","Fatma","Ayşe","Elif","Sude"];
-var surnames=["Yılmaz","Kaya","Demir","Şahin","Çelik","Koç","Arslan","Aydın","Polat","Kurt","Bulut","Doğan","Kılıç","Yıldız","Güneş","Öztürk"];
-var countries=["Turkey","Germany","USA","UK","France","Italy","Spain","Netherlands"];
-var cities=["Istanbul","Ankara","Izmir","Bursa","Antalya","Adana","Trabzon","Eskisehir"];
-var streets=["Ataturk Street","Cumhuriyet Street","Fatih Avenue","Baris Street","Gazi Street","Yildiz Street"];
-
-function r(a){return a[Math.floor(Math.random()*a.length)];}
-function ip(){return Math.floor(Math.random()*255)+"."+Math.floor(Math.random()*255)+"."+Math.floor(Math.random()*255)+"."+Math.floor(Math.random()*255);}
-function gps(){return (Math.random()*180-90).toFixed(6)+","+(Math.random()*360-180).toFixed(6);}
-function phone(){return "05"+Math.floor(100000000+Math.random()*900000000);}
-function email(n,s){return (n+"."+s+Math.floor(Math.random()*100)+"@mail.com").toLowerCase();}
-function username(n,s){return (n+s+Math.floor(Math.random()*100)).toLowerCase();}
-function address(){return Math.floor(Math.random()*200)+" "+r(streets);}
-
-var dataset=[];
-document.getElementById('generate').onclick = function(){
-  dataset=[];
-  let count=document.getElementById('count').value;
-  let table=document.getElementById('table');
-  table.innerHTML="<tr><th>Name</th><th>Country</th><th>City</th><th>Address</th><th>Email</th><th>Phone</th><th>IP</th><th>GPS</th><th>Username</th></tr>";
-  for(let i=0;i<count;i++){
-    let n=r(names), s=r(surnames);
-    let row=[n+" "+s, r(countries), r(cities), address(), email(n,s), phone(), ip(), gps(), username(n,s)];
-    dataset.push(row);
-    let tr="<tr>";
-    for(let x of row){tr+="<td>"+x+"</td>";}
-    tr+="</tr>";
-    table.innerHTML+=tr;
-  }
 }
 
-// ----------------- DOWNLOAD -----------------
-function downloadTXT(){let t=""; dataset.forEach(r=>t+=r.join(" | ")+"\n"); download(t,"data.txt");}
-function downloadCSV(){let t=""; dataset.forEach(r=>t+=r.join(",")+"\n"); download(t,"data.csv");}
-function downloadJSON(){download(JSON.stringify(dataset,null,2),"data.json");}
-function download(data,name){let blob=new Blob([data]); let a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; a.click();}
+setInterval(draw,35)
+
+/* LOADING */
+
+setTimeout(()=>{
+
+document.getElementById("loading").style.display="none"
+document.getElementById("warning").style.display="flex"
+
+},2000)
+
+/* TERMINAL */
+
+let terminalText=[
+"Initializing system...",
+"Loading generator modules...",
+"Connecting to fake database...",
+"Injecting random profiles...",
+"Bypassing reality firewall...",
+"System ready."
+]
+
+function startTerminal(){
+
+document.getElementById("warning").style.display="none"
+
+let t=document.getElementById("terminal")
+
+t.style.display="block"
+
+let i=0
+
+function type(){
+
+if(i<terminalText.length){
+
+t.innerHTML+=terminalText[i]+"\n"
+
+i++
+
+setTimeout(type,800)
+
+}else{
+
+setTimeout(()=>{
+
+t.style.display="none"
+document.getElementById("site").style.display="block"
+
+},1000)
+
+}
+
+}
+
+type()
+
+}
+
+/* GENERATOR */
+
+function r(a){
+return a[Math.floor(Math.random()*a.length)]
+}
+
+let names=["Ahmet","Mehmet","Ali","Kerem","Arda","Deniz","Zeynep","Elif","Ece"]
+let surnames=["Yılmaz","Demir","Kaya","Koç","Aydın","Polat"]
+
+function ip(){
+return Math.floor(Math.random()*255)+"."+Math.floor(Math.random()*255)+"."+Math.floor(Math.random()*255)+"."+Math.floor(Math.random()*255)
+}
+
+function generate(){
+
+let count=document.getElementById("count").value
+
+let table=document.getElementById("table")
+
+table.innerHTML="<tr><th>Name</th><th>Email</th><th>IP</th><th>Username</th></tr>"
+
+for(let i=0;i<count;i++){
+
+let n=r(names)+" "+r(surnames)
+
+let email=n.replace(" ",".").toLowerCase()+"@mail.com"
+
+let user=n.replace(" ","").toLowerCase()+Math.floor(Math.random()*100)
+
+let tr="<tr><td>"+n+"</td><td>"+email+"</td><td>"+ip()+"</td><td>"+user+"</td></tr>"
+
+table.innerHTML+=tr
+
+}
+
+}
+
 </script>
 
 </body>
