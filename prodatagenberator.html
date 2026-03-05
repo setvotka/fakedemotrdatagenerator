@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Fake Data Generator PRO - Güvenlikli</title>
+
+<!--
+Fake Data Generator PRO
+Copyright (c) 2026 setvotka
+
+This software generates completely random, fictional data for testing purposes.
+All generated data is fictional and does not represent real individuals.
+Unauthorized redistribution of this project without proper credit is not permitted.
+-->
+
+<style>
+body{
+  background:#111;
+  color:#fff;
+  font-family:Arial, sans-serif;
+  text-align:center;
+  padding:20px;
+}
+h1{margin-top:10px;}
+.kutu{
+  background:#1a1a1a;
+  padding:20px;
+  border-radius:10px;
+  display:inline-block;
+  margin-bottom:20px;
+}
+input,button{
+  padding:10px;
+  margin:5px;
+  font-size:14px;
+}
+button{
+  cursor:pointer;
+  border:none;
+  border-radius:6px;
+  background:#00ff88;
+  color:#000;
+}
+button:disabled{
+  background:#555;
+  color:#888;
+  cursor:not-allowed;
+}
+footer{
+  margin-top:30px;
+  color:#777;
+  font-size:13px;
+}
+table{
+  margin:auto;
+  width:90%;
+  max-width:1200px;
+  border-collapse:collapse;
+  margin-top:20px;
+}
+th,td{
+  border:1px solid #333;
+  padding:6px;
+}
+tr:hover{background:#222;}
+.box{overflow:auto;}
+</style>
+</head>
+<body>
+
+<h1>Fake Data Generator PRO</h1>
+
+<div class="kutu">
+<p><b>Güvenlik Kodu:</b> <span id="captcha"></span></p>
+<input type="text" id="kod" placeholder="Kodu gir">
+<button id="kontrol">Doğrula</button>
+<p id="mesaj"></p>
+</div>
+
+<div class="kutu">
+<input type="number" id="count" value="10" min="1" max="3000">
+<br>
+<button id="generate" disabled>Generate</button>
+<button onclick="downloadTXT()">TXT</button>
+<button onclick="downloadCSV()">CSV</button>
+<button onclick="downloadJSON()">JSON</button>
+
+<div class="box">
+<table id="table">
+<tr>
+<th>Name</th><th>Country</th><th>City</th><th>Address</th><th>Email</th><th>Phone</th><th>IP</th><th>GPS</th><th>Username</th>
+</tr>
+</table>
+</div>
+</div>
+
+<footer>
+© 2026 Fake Data Generator PRO – Created by setvotka  
+All generated data is fictional and for testing purposes only.
+</footer>
+
+<script>
+// ----------------- CAPTCHA -----------------
+let captcha = Math.floor(1000 + Math.random()*9000);
+document.getElementById('captcha').innerText = captcha;
+
+document.getElementById('kontrol').onclick = function(){
+  let girilen = document.getElementById('kod').value;
+  if(girilen == captcha){
+    document.getElementById('mesaj').innerText = "✅ Doğrulama başarılı!";
+    document.getElementById('generate').disabled = false;
+  } else {
+    document.getElementById('mesaj').innerText = "❌ Güvenlik kodu yanlış!";
+    document.getElementById('generate').disabled = true;
+    captcha = Math.floor(1000 + Math.random()*9000);
+    document.getElementById('captcha').innerText = captcha;
+  }
+}
+
+// ----------------- Fake Data -----------------
+var names=["Ahmet","Mehmet","Ali","Mert","Can","Eren","Burak","Kerem","Emir","Tolga","Kaan","Arda","Ozan","Baran","Umut","Serkan","Volkan","Emre","Hakan","Tuna","Deniz","Selin","Buse","Ece","Ceren","Zeynep","Fatma","Ayşe","Elif","Sude"];
+var surnames=["Yılmaz","Kaya","Demir","Şahin","Çelik","Koç","Arslan","Aydın","Polat","Kurt","Bulut","Doğan","Kılıç","Yıldız","Güneş","Öztürk"];
+var countries=["Turkey","Germany","USA","UK","France","Italy","Spain","Netherlands"];
+var cities=["Istanbul","Ankara","Izmir","Bursa","Antalya","Adana","Trabzon","Eskisehir"];
+var streets=["Ataturk Street","Cumhuriyet Street","Fatih Avenue","Baris Street","Gazi Street","Yildiz Street"];
+
+function r(a){return a[Math.floor(Math.random()*a.length)];}
+function ip(){return Math.floor(Math.random()*255)+"."+Math.floor(Math.random()*255)+"."+Math.floor(Math.random()*255)+"."+Math.floor(Math.random()*255);}
+function gps(){return (Math.random()*180-90).toFixed(6)+","+(Math.random()*360-180).toFixed(6);}
+function phone(){return "05"+Math.floor(100000000+Math.random()*900000000);}
+function email(n,s){return (n+"."+s+Math.floor(Math.random()*100)+"@mail.com").toLowerCase();}
+function username(n,s){return (n+s+Math.floor(Math.random()*100)).toLowerCase();}
+function address(){return Math.floor(Math.random()*200)+" "+r(streets);}
+
+var dataset=[];
+document.getElementById('generate').onclick = function(){
+  dataset=[];
+  let count=document.getElementById('count').value;
+  let table=document.getElementById('table');
+  table.innerHTML="<tr><th>Name</th><th>Country</th><th>City</th><th>Address</th><th>Email</th><th>Phone</th><th>IP</th><th>GPS</th><th>Username</th></tr>";
+  for(let i=0;i<count;i++){
+    let n=r(names), s=r(surnames);
+    let row=[n+" "+s, r(countries), r(cities), address(), email(n,s), phone(), ip(), gps(), username(n,s)];
+    dataset.push(row);
+    let tr="<tr>";
+    for(let x of row){tr+="<td>"+x+"</td>";}
+    tr+="</tr>";
+    table.innerHTML+=tr;
+  }
+}
+
+// ----------------- DOWNLOAD -----------------
+function downloadTXT(){let t=""; dataset.forEach(r=>t+=r.join(" | ")+"\n"); download(t,"data.txt");}
+function downloadCSV(){let t=""; dataset.forEach(r=>t+=r.join(",")+"\n"); download(t,"data.csv");}
+function downloadJSON(){download(JSON.stringify(dataset,null,2),"data.json");}
+function download(data,name){let blob=new Blob([data]); let a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; a.click();}
+</script>
+
+</body>
+</html>
